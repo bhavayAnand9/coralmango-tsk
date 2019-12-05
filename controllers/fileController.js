@@ -17,6 +17,25 @@ exports.getUserFiles = async (req, res, next) => {
     });
 };
 
+exports.delUserFile = (req, res) => {
+    const {whichFile_id} = req.body;
+    Files.findById(whichFile_id, (err, f) => {
+        if (err) {
+            res.status(404).json({
+                Error: "no such file"
+            })
+        } else {
+            if (f.uploadedBy === req.loggedInUserId) {
+                fs.unlinkSync(node_path.resolve(__dirname + '/../' + 'uploads/' + f._id + '.pdf'));
+                return res.status(500).json({
+                    Message: "file deleted"
+                })
+            }
+        }
+    });
+
+};
+
 exports.submitFile = async (req, res, next) => {
     const {title, description} = req.body;
     const dateUploaded = new Date();
