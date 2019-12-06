@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
-let decodedToken;
+let decodedToken = {};
 decodedToken.userId = undefined;
 module.exports = (req, res, next) => {
     const authHeader = req.headers.authorization;

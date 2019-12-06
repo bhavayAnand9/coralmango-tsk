@@ -2,6 +2,7 @@ const Files = require('../schema/Files');
 const User = require('../schema/Users');
 const node_path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
 
 exports.getUserFiles = async (req, res, next) => {
     Files.find({uploadedBy: req.loggedInUserId}, (err, data) => {
@@ -27,22 +28,37 @@ exports.delUserFile = (req, res) => {
         } else {
             if (f.uploadedBy === req.loggedInUserId) {
                 fs.unlinkSync(node_path.resolve(__dirname + '/../' + 'uploads/' + f._id + '.pdf'));
-                return res.status(500).json({
+                res.status(500).json({
                     Message: "file deleted"
                 })
             }
         }
-    });
 
+        User.findById(req.loggedInUserId, (err, tt) => {
+            if (err) res.status(404).json({Error: "some error occured"});
+            else {
+                let index = -1;
+                for (let i = 0; i < tt.filesUploaded.files.length; ++i) {
+                    if (!tt.filesUploaded.files[i]._id.toString().localeCompare(whichFile_id)) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index > -1) tt.filesUploaded.files.splice(index, 1);
+                tt.save();
+            }
+        })
+
+    });
 };
 
-exports.submitFile = async (req, res, next) => {
+exports.submitFile = async (req, res) => {
     const {title, description} = req.body;
     const dateUploaded = new Date();
     const file = req.file;
     if (!file) {
         fs.unlinkSync(node_path.resolve(__dirname + '/../' + file.path));
-        return res.status(404).json({
+        res.status(404).json({
             Error: 'file is corrupted or not supported'
         })
     }
@@ -58,16 +74,19 @@ exports.submitFile = async (req, res, next) => {
         .save()
         .then(result => {
             User.findById(result.uploadedBy)
-                .then(user => {
-                    user.filesUploaded.push(result._id);
-                    user.save();
+                .then(u => {
+                    u.filesUploaded.files.push(result._id);
+                    u.save();
                 })
-                .catch(err => res.status(500).json(err));
+                .catch(err => {
+                    console.error(err);
+                    res.status(500).json({});
+                });
 
             try {
                 fs.renameSync(node_path.resolve(__dirname + '/../' + file.path), node_path.resolve(__dirname + '/../' + 'uploads/' + result._id + '.pdf'));
             } catch (e) {
-                return res.status(404).json({e});
+                res.status(404).json({e});
             }
             res.status(200).json({
                 dataUploaded: result
@@ -75,7 +94,7 @@ exports.submitFile = async (req, res, next) => {
         })
         .catch(err => {
             fs.unlinkSync(node_path.resolve(__dirname + '/../' + file.path));
-            return res.status(500).json({
+            res.status(500).json({
                 Error: "some err occured, code : 0X0001"
             })
         });

@@ -1,12 +1,9 @@
 const express = require("express");
 const app = express();
 
-const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const fs = require('fs');
 const cors = require('cors');
-const session = require('express-session');
 const multer = require('multer');
 const config = require('./config');
 
@@ -19,8 +16,8 @@ app.use(cors());
 const userRoutes = require('./routes/user');
 const fileRoutes = require('./routes/file');
 
-app.use('/user', userRoutes);
-app.use('/file', fileRoutes);
+app.use('/user', userRoutes.routes);
+app.use('/file', fileRoutes.routes);
 
 mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useCreateIndex:true })
     .then(result => {
