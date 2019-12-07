@@ -15,6 +15,9 @@ const filesSchema = new Schema({
         required: true,
         ref: 'Users'
     },
+    originalName: {
+        type: String
+    },
     dateUploaded: {
         type: Date,
         required: true

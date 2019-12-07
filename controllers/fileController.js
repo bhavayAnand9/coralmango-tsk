@@ -2,7 +2,6 @@ const Files = require('../schema/Files');
 const User = require('../schema/Users');
 const node_path = require('path');
 const fs = require('fs');
-const mongoose = require('mongoose');
 
 exports.getUserFiles = async (req, res, next) => {
     Files.find({uploadedBy: req.loggedInUserId}, (err, data) => {
@@ -68,6 +67,7 @@ exports.submitFile = async (req, res) => {
         description: description,
         uploadedBy: req.loggedInUserId,
         dateUploaded: dateUploaded,
+        originalName: file.originalname
     });
 
     fileObj
@@ -99,6 +99,7 @@ exports.submitFile = async (req, res) => {
             })
         });
 };
+
 
 exports.getFile = async (req, res, next) => {
     const {file_id} = req.body;
