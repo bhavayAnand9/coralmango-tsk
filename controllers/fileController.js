@@ -27,7 +27,7 @@ exports.delUserFile = (req, res) => {
             })
         } else {
             if (f.uploadedBy === req.loggedInUserId) {
-                fs.unlinkSync(node_path.resolve(__dirname + '/../' + 'uploads/' + f._id + '.pdf'));
+                fs.unlinkSync(node_path.resolve(__dirname + '/../' + 'uploads/' + f._id));
                 res.status(500).json({
                     Message: "file deleted"
                 })
@@ -84,7 +84,7 @@ exports.submitFile = async (req, res) => {
                 });
 
             try {
-                fs.renameSync(node_path.resolve(__dirname + '/../' + file.path), node_path.resolve(__dirname + '/../' + 'uploads/' + result._id + '.pdf'));
+                fs.renameSync(node_path.resolve(__dirname + '/../' + file.path), node_path.resolve(__dirname + '/../' + 'uploads/' + result._id));
             } catch (e) {
                 res.status(404).json({e});
             }
@@ -102,11 +102,10 @@ exports.submitFile = async (req, res) => {
 
 exports.getFile = async (req, res, next) => {
     const {file_id} = req.body;
+
     try {
         //check if any such file exist
-        await fs.promises.access(node_path.resolve(__dirname + '/../' + 'uploads/' + file_id + '.pdf'));
-
-        let shouldStreamFile = undefined;
+        await fs.promises.access(node_path.resolve(__dirname + '/../' + 'uploads/' + file_id));
 
         //should this user be accessing this file?
         Files.findById(file_id, (err, f) => {
@@ -115,22 +114,20 @@ exports.getFile = async (req, res, next) => {
                     Error: "No such file found"
                 });
             } else {
-                shouldStreamFile = f.uploadedBy === req.loggedInUserId;
+                if (f.uploadedBy.toString().localeCompare(req.loggedInUserId) === 0) {
+                    const file = fs.createReadStream(node_path.resolve(__dirname + '/../' + 'uploads/' + file_id));
+
+                    res.setHeader('Content-Disposition', `attachment; filename=${file_id}`);
+                    res.setHeader('Content-Transfer-Encoding', 'binary');
+                    res.setHeader('Content-Type', 'application/octet-stream');
+                    res.sendFile(node_path.resolve(__dirname + '/../' + 'uploads/' + file_id));
+                } else {
+                    res.status(404).json({
+                        Error: "you are not allowed to access this file"
+                    });
+                }
             }
         });
-
-        if (shouldStreamFile) {
-            const file = await fs.createReadStream(node_path.resolve(__dirname + '/../' + 'uploads/' + file_id + '.pdf'));
-            res.setHeader(
-                'Content-Disposition',
-                'attachment; filename="' + file.name + '"'
-            );
-            file.pipe(res);
-        } else {
-            res.status(404).json({
-                Error: "you are not allowed to access this file"
-            });
-        }
 
     } catch (err) {
         res.status(404).json({
