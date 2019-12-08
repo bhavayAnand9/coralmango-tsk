@@ -16,6 +16,9 @@ app.use(cors());
 const userRoutes = require('./routes/user');
 const fileRoutes = require('./routes/file');
 
+app.get('/', (req, res)=> {
+    res.send('working');
+});
 app.use('/user', userRoutes.routes);
 app.use('/file', fileRoutes.routes);
 
