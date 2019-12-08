@@ -21,6 +21,10 @@ const filesSchema = new Schema({
     dateUploaded: {
         type: Date,
         required: true
+    },
+    shortUrl: {
+        type: String,
+        unique: true
     }
 });
 
