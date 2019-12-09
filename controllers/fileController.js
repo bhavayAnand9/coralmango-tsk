@@ -50,8 +50,6 @@ exports.getUrl = async (req, res, next) => {
 
 exports.delUserFile = (req, res) => {
     const {file_id} = req.body;
-    console.log(file_id);
-
     Files.findById(file_id, (err, f) => {
         if (err || f == null) {
             res.status(404).json({
@@ -65,11 +63,10 @@ exports.delUserFile = (req, res) => {
                         if (err) res.status(500).json({Error: "internal server error"});
                     });
                 } catch (e) {
-
+                    res.status(404).json({Error: 'some error occured code: 00XDLFLCTH'})
                 }
-
                 res.status(200).json({
-                    Message: "file deleted"
+                    Alert: "file deleted"
                 })
             }
         }
@@ -110,7 +107,6 @@ exports.submitFile = async (req, res) => {
         dateUploaded: dateUploaded,
         originalName: file.originalname
     });
-    console.log(fileObj);
     fileObj
         .save()
         .then(result => {
@@ -133,8 +129,6 @@ exports.submitFile = async (req, res) => {
             });
         })
         .catch(err => {
-            console.log("here");
-            console.log(err);
             fs.unlinkSync(node_path.resolve(__dirname + '/../' + file.path));
             res.status(500).json({
                 Error: "some err occured, code : 0X0001"

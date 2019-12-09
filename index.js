@@ -22,7 +22,7 @@ app.get('/', (req, res)=> {
 app.use('/user', userRoutes.routes);
 app.use('/file', fileRoutes.routes);
 
-mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useCreateIndex:true })
+mongoose.connect(config.TEST_MONGODB_URI, {useNewUrlParser: true, useCreateIndex: true})
     .then(result => {
         console.log('Mongoose connected');
         const server = app.listen(config.PORT, (err)=>{

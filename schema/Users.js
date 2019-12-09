@@ -12,6 +12,9 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    confirmed: {
+        type: Boolean
+    },
     filesUploaded: {
         files: [
             {
@@ -21,6 +24,10 @@ const userSchema = new Schema({
                 }
             }
         ]
+    },
+    emialVerificationId: {
+        type: String,
+        unique: true
     }
 });
 
