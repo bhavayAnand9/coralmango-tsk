@@ -16,7 +16,7 @@ app.use(cors());
 const userRoutes = require('./routes/user');
 const fileRoutes = require('./routes/file');
 
-app.use(express.static(path.join(__dirname, './frontend/dist/')));
+app.use(express.static(path.join(__dirname, './dist/client/')));
 app.get('/', (req, res)=> {
     res.send('working');
 });
@@ -24,7 +24,7 @@ app.use('/user', userRoutes.routes);
 app.use('/file', fileRoutes.routes);
 
 app.get('*', (req, res) => {
-   return res.sendFile(path.join(__dirname, 'frontend/dist/index.html'));
+   return res.sendFile(path.join(__dirname, 'dist/client/index.html'));
 });
 
 mongoose.connect(config.TEST_MONGODB_URI, {useNewUrlParser: true, useCreateIndex: true})
