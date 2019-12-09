@@ -54,7 +54,7 @@ exports.signupUser = (req, res) => {
                             html: `<a href=${config.BACKEND_IP}user/confirm-user/${uuid}>CONFIRM EMAIL</a>`,
                         };
                         sgMail.send(msg).then(r => {
-                            console.log(r);
+                        }).catch(e => {
                         });
 
                     });
