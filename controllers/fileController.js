@@ -110,7 +110,7 @@ exports.submitFile = async (req, res) => {
         dateUploaded: dateUploaded,
         originalName: file.originalname
     });
-
+    console.log(fileObj);
     fileObj
         .save()
         .then(result => {
@@ -122,7 +122,7 @@ exports.submitFile = async (req, res) => {
                 .catch(err => {
                     res.status(500).json({Error: 'some error occured'});
                 });
-
+            
             try {
                 fs.renameSync(node_path.resolve(__dirname + '/../' + file.path), node_path.resolve(__dirname + '/../' + 'uploads/' + result._id));
             } catch (e) {
@@ -133,6 +133,8 @@ exports.submitFile = async (req, res) => {
             });
         })
         .catch(err => {
+            console.log("here");
+            console.log(err);
             fs.unlinkSync(node_path.resolve(__dirname + '/../' + file.path));
             res.status(500).json({
                 Error: "some err occured, code : 0X0001"
